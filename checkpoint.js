@@ -33,7 +33,9 @@ const {
 // < 16
 
 function exponencial(exp) {
-
+    return function (n) {
+        return n ** exp;
+    }
 }
 
 // ----- Recursión -----
@@ -69,9 +71,24 @@ function exponencial(exp) {
 // haciendo los movimientos SUR->ESTE->NORTE
 // Aclaraciones: el segundo parametro que recibe la funcion ('direccion') puede ser pasado vacio (null)
 
-function direcciones(laberinto) {
+function direcciones(laberinto, direccion = "") {
+    if (!laberinto) { return direccion }
 
+    for (var key in laberinto) {
+
+        if (laberinto[key] === 'destino') {
+            direccion = direccion + key;
+            return direccion;
+        }
+        if (typeof laberinto[key] === 'object') {
+            direccion = direccion + key;
+            return direcciones(laberinto[key], direccion)
+        }
+
+    }
+    return direccion;
 }
+
 
 
 // EJERCICIO 3
@@ -88,9 +105,15 @@ function direcciones(laberinto) {
 // deepEqualArrays([0,1,[[0,1,2],1,2]], [0,1,[[0,1,2],1,2]]) => true
 
 function deepEqualArrays(arr1, arr2) {
+    if (arr1.length !== arr2.length) return false;
 
+    for (let i = 0; i < arr1.length; i++) {
+        if (Array.isArray(arr1[i])) {
+            return deepEqualArrays(arr1[i], arr2[i]);
+        } else if (arr1[i] !== arr2[i]) return false;
+    }
+    return true;
 }
-
 
 
 // ----- LinkedList -----
@@ -110,7 +133,7 @@ function OrderedLinkedList() {
 // notar que Node esta implementado en el archivo DS
 
 // Y el metodo print que permite visualizar la lista:
-OrderedLinkedList.prototype.print = function(){
+OrderedLinkedList.prototype.print = function () {
     let print = 'head'
     let pointer = this.head
     while (pointer) {
@@ -138,13 +161,53 @@ OrderedLinkedList.prototype.print = function(){
 // > LL.print()
 // < 'head --> 5 --> 3 --> 1 --> null'
 //               4
-OrderedLinkedList.prototype.add = function(val){
-    
+OrderedLinkedList.prototype.add = function (val) {
+
+    let nodo = new Node(val);
+    if (!this.head) { this.head = nodo; }
+
+    let current = this.head;
+    if (!current.next) {
+        if (val < current.value) {
+            current.next = nodo;
+        }
+
+        if (val > current.value) {
+            let aux = this.head;
+            this.head = nodo;
+            nodo.next = aux;
+
+        }
+    } else {
+        if (current.next) {
+            if (val > current.value) {
+                let aux = this.head;
+                this.head = nodo;
+                nodo.next = aux;
+            }
+        }
+        current = this.head;
+        if (val < current.value && val > current.next.value) {
+            let aux = current.next;
+            current.next = nodo;
+            nodo.next = aux;
+
+        }
+
+    }
+    while (current.next) {
+        current = current.next
+    }
+    if (val < current.value) {
+        current.next = nodo;
+        current = this.head;
+
+    }
+
 }
 
-
 // EJERCICIO 5
-// Crea el metodo 'removeHigher' que deve devolver el valor mas alto de la linked list 
+// Crea el metodo 'removeHigher' que debe devolver el valor mas alto de la linked list 
 // removiendo su nodo corresponidente:
 // Ejemplo:
 // > LL.print()
@@ -158,9 +221,28 @@ OrderedLinkedList.prototype.add = function(val){
 // > LL.removeHigher()
 // < null
 
-OrderedLinkedList.prototype.removeHigher = function(){
+OrderedLinkedList.prototype.removeHigher = function () {
+    if(!this.head) return null;
     
-}
+    let current = this.head;
+    if(!current.next){
+        var removed = current.value
+        this.head = null;
+        return removed;
+        } else {
+        if(current.value > current.next.value){
+          var removed = current.value
+           this.head = current.next
+           current.next = null;
+           return removed;
+    }
+    }
+    }
+    
+
+
+
+
 
 
 // EJERCICIO 6
@@ -179,10 +261,22 @@ OrderedLinkedList.prototype.removeHigher = function(){
 // < null
 
 OrderedLinkedList.prototype.removeLower = function(){
+    if(!this.head) return null;
     
-}
-
-
+    let current = this.head;
+    if(!current.next){
+    var removed = current.value
+    this.head = null;
+    return removed;
+    } else {
+      while(current.next.next){
+        current = current.next
+      }
+      var removed = current.next.value
+      current.next = null;
+    }
+    return removed;
+    }
 
 // ----- QUEUE -----
 
@@ -211,8 +305,8 @@ OrderedLinkedList.prototype.removeLower = function(){
 // > multiCallbacks(cbs1, cbs2);
 // < ["2-1", "1-1", "1-2", "2-2"];
 
-function multiCallbacks(cbs1, cbs2){
-    
+function multiCallbacks(cbs1, cbs2) {
+
 }
 
 
@@ -230,11 +324,20 @@ function multiCallbacks(cbs1, cbs2){
 // 5   9
 // resultado:[5,8,9,32,64]
 
-BinarySearchTree.prototype.toArray = function() {
+
+let result = [];
+BinarySearchTree.prototype.toArray = function () {
+
+    if(this.value){
+    if(this.left) this.left.toArray();
+    result.push(this.value);
+    if(this.right) this.right.toArray();
     
-}
-
-
+    }
+    return result;
+    
+    
+    }
 
 // ----- Algoritmos -----
 
@@ -250,7 +353,7 @@ BinarySearchTree.prototype.toArray = function() {
 // informarse sobre algoritmos, leerlos de un pseudocodigo e implemnterlos alcanzara
 
 function primalityTest(n) {
-    
+
 }
 
 
@@ -260,7 +363,7 @@ function primalityTest(n) {
 // https://en.wikipedia.org/wiki/Quicksort
 
 function quickSort(array) {
-    
+
 }
 // QuickSort ya lo conocen solo que este 
 // ordena de mayor a menor
@@ -282,8 +385,8 @@ function quickSort(array) {
 // > reverse(95823);
 // < 32859
 
-function reverse(num){
-    
+function reverse(num) {
+
 }
 // la grandiosa resolucion de Wilson!!!
 // declaran una variable donde 
